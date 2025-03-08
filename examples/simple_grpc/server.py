@@ -1,7 +1,7 @@
 import grpc
 from concurrent import futures
 import sum_pb2
-import sum_pb2_grpc
+import sum_pb2_grpc 
 
 class SumService(sum_pb2_grpc.SumServiceServicer):
     def Sum(self, request, context):
