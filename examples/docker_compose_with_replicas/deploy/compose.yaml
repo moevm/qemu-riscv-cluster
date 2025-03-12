@@ -1,0 +1,18 @@
+services:
+  central_node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: alpine_central_node
+    volumes: 
+      - logs_volume:/logs
+  replicated_nodes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: alpine_replicated_nodes
+    deploy:
+      mode: replicated
+      replicas: $replicas
+volumes:
+  logs_volume:
