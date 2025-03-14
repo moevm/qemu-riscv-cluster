@@ -7,7 +7,7 @@ def run():
     stub = sum_pb2_grpc.SumServiceStub(channel)
     
     response = stub.Sum(sum_pb2.SumRequest(a=22, b=2332))
-    print(f"Результат сложения: {response.result}")
+    print(f"The result of the addition: {response.result}")
 
 if __name__ == '__main__':
     run()
