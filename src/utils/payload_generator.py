@@ -44,33 +44,33 @@ class PayloadGenerator:
         self.file_type = file_type
         self.text_charset = text_charset
 
-    def generate(self, output_dir: Optional[str] = None, filename: Optional[str] = None) -> str:
+    def generate(self, path: Optional[str] = None) -> str:
         """
-        Generates a file 
+        Generates a file.
 
         Arguments:
 
-        `output_dir: Optional[str]` - the directory where the file will be located
-
-        `filename: Optional[str]` - file name
+        `path: Optional[str]` - The full path where the file will be created.
+        If not provided, a file with a random name will be created in the current directory.
 
         Output data:
 
-        `str` - the string that represents the absolute path
+        `str` - The absolute path to the generated file.
         """
-        if filename is None:
+        if path is None:
             ext = "bin" if self.file_type == "binary" else "txt"
-            filename = f"{uuid.uuid4().hex}.{ext}"
-        
-        filepath = os.path.join(output_dir, filename) if output_dir else filename
-        os.makedirs(os.path.dirname(filepath), exist_ok=True) if output_dir else None
+            path = f"{uuid.uuid4().hex}.{ext}"
+
+        dirname = os.path.dirname(path)
+        if dirname:
+            os.makedirs(dirname, exist_ok=True)
 
         if self.file_type == "binary":
-            self._generate_binary(filepath)
+            self._generate_binary(path)
         else:
-            self._generate_text(filepath)
+            self._generate_text(path)
 
-        return os.path.abspath(filepath)
+        return os.path.abspath(path)
 
     def _generate_binary(self, path: str):
         """binary data generation"""

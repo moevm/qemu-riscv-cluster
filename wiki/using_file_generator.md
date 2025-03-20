@@ -17,7 +17,7 @@
 - - min_size, max_size - file size range (random value is selected)
 - - text_charset - character set to generate
 ### launching via the terminal
-- it is necessary to add several paths to PYTHONPATH through the console so that the imports work normally ``export PYTHONPATH="/home/ravendexter/Desktop/code/project/new_repo_yadro/qemu-riscv-cluster/qemu-riscv-cluster/src/protobuf:/home/ravendexter/Desktop/code/project/new_repo_yadro/qemu-riscv-cluster/qemu-riscv-cluster:$PYTHONPATH"``
+- it is necessary to add several paths to PYTHONPATH through the console so that the imports work normally ``export PYTHONPATH="/home/ravendexter/Desktop/code/project/new_repo_yadro/qemu-riscv-cluster/qemu-riscv-cluster/src/protobuf:/home/ravendexter/Desktop/code/project/new_repo_yadro/qemu-riscv-cluster/qemu-riscv-cluster:$PYTHONPATH"`` (for example)
 - you must run this command in another terminal where the client will be launched.
 - in the controller directory, you need to run ``python3 controller.py``
 - in another terminal in the client directory, you need to run ``python3 client.py``
