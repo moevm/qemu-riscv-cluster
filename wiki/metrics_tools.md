@@ -1,44 +1,44 @@
-# Инструменты для мониторинга состояния узла
+# Tools for monitoring working units' state.
 
 * [collectd](https://www.collectd.org/)
-  - Последний релиз в 2020, последний мердж в мастер 3 недели назад (вроде живой), 3.2k звёзд.
-  - collectd: MIT Licence. Плагины в основном GNU GPL и MIT LICENCE
-  - Демон, собирающий метрики. Совместим с различными "фронт-ендами". В их числе, например, совместимость с Prometheus через плагин [Plugin-Write-Prometheus](https://github.com/collectd/collectd/wiki/Plugin-Write-Prometheus), который запускает обработчик запросов Prometheus'а на порту 9103 (или на любом другом, указанном в конфиге).
-  - Для разных метрик надо подключать разные плагины. Основные плагины: LogFile (Writes log messages to a file or standard output), SysLog (Writes debug and status information to syslog), RRDtool (Writes data to RRD files), CSV (Writes data to CSV files), CPU (Collects CPU usage), Memory (Collects memory usage), Interface (Collects traffic of network interfaces).
-  - [Плагинов](https://github.com/collectd/collectd/wiki/Table-of-Plugins) порядка 100+ штук
+  - Last release in 2020, last merge to master 3 weeks ago (project seems to be alive), 3.2k stars.
+  - collectd: MIT Licence. Plugins are mostly GNU GPL and MIT LICENCE.
+  - Daemon that collects metrics. Compatible with various "front-ends". For example, compatibility with Prometheus via [Plugin-Write-Prometheus](https://github.com/collectd/collectd/wiki/Plugin-Write-Prometheus) plugin, which runs the Prometheus request handler on port 9103 (or any other specified in the config).
+  - Different plugins need to be connected for different metrics. Main plugins: LogFile (Writes log messages to a file or standard output), SysLog (Writes debug and status information to syslog), RRDtool (Writes data to RRD files), CSV (Writes data to CSV files), CPU (Collects CPU usage), Memory (Collects memory usage), Interface (Collects traffic of network interfaces).
+  - 100+ [plugins](https://github.com/collectd/collectd/wiki/Table-of-Plugins).
 
 * [Prometheus](https://prometheus.io/)
-  - Проект живой.
+  - Alive
   - Apache 2 Licence.
-  - Сервер = База данных + веб-визуализация.
-  - Есть официальный [клиент для Python](https://prometheus.github.io/client_python/), неофициальные для C/C++. Можно собирать свои кастомные метрики.
-  - Есть готовый докер-образ. Альтернативно, установка "FROM ubuntu" [несложная](https://github.com/jcdkiki/prometheus-example).
+  - Server = Database + Web-frontend.
+  - There is an official [client for Python](https://prometheus.github.io/client_python/), unofficial for C/C++. Can collect your own custom metrics.
+  - There is a "Prometheus" docker image availible. Alternatively, "FROM ubuntu" installation is [simple](https://github.com/jcdkiki/prometheus-example).
   
 * [beszel](https://github.com/henrygd/beszel)
-  - Проект живой. 9.7k звёзд на Github.
+  - Alive. 9.7k stars on Github.
   - MIT Licence
-  - Рекламирует себя как "Lightweight".
-  - Есть свой клиент (демон для сборки метрик), который поддерживает метрики: CPU usage, Memory usage, Disk usage, Disk I/O, Network usage, Temperature, GPU usage / temperature / power draw - Nvidia and AMD only.
-  - Легко устанавливается и настраивается https://beszel.dev/guide/getting-started
+  - Advertises itself as "Lightweight".
+  - There is a client (deamon that collects metrics), which supports metrics: CPU usage, Memory usage, Disk usage, Disk I/O, Network usage, Temperature, GPU usage / temperature / power draw - Nvidia and AMD only.
+  - Easy to install and configure: https://beszel.dev/guide/getting-started
 
 * [munin](https://github.com/munin-monitoring/munin?tab=readme-ov-file)
-  - Последний релиз 2023, последний мердж в мастер 3 недели назад (проект вроде живой). 2k звёзд.
+  - Last release in 2023, last merge in master 3 weeks ago (project seems to be alive). 2k stars.
   - GNU GPL.
-  - Имеет свой протокол, несовместимый с Prometheus, Graphite, etc...
-  - Очень просто [установить и настроить](https://interface31.ru/tech_it/2023/01/ustanavlivaem-i-nastraivaem-sistemu-monitoringa-munin.html).
-  - Много [плагинов](https://gallery.munin-monitoring.org/). Можно писать свои плагины для кастомных метрик.
-  - Веб-интерфейс минималистичный.
+  - Has its own protocol, incompatible with Prometheus, Graphite, etc...
+  - Easy to [install and configure](https://interface31.ru/tech_it/2023/01/ustanavlivaem-i-nastraivaem-sistemu-monitoringa-munin.html).
+  - Lots of [plugins](https://gallery.munin-monitoring.org/). You can write your own plugins for collecting custom metrics.
+  - Minimalisted web interface.
 
 * CollectD + StatsD + Carbon + Graphite-web
-  - Проекты живые, Apache 2.0 Licence
-  - Сборщик метрик на конкретном узле + Сборшик метрик со всех узлов + хранилище метрик + веб-визуализация.
-  - В качестве сборщика метрик можно использовать любой carbon-совместимый сборщик, не обязательно collectd. В качестве визуализации тоже не обязательно Graphite-web. Полный список совместимых [сборщиков и веб-фронтендов](https://graphite.readthedocs.io/en/0.9.11/tools.html). Выглядит как дело вкуса, особой разницы между ними, скорее всего, нет.
-  - Настроить понятное дело это всё сложнее, чем "практически" готовые решения типа описанных выше.
+  - Alive, Apache 2.0 Licence
+  - Metrics collector (on each node) + Metrics collector (recieves metrics from nodes) + metrics storage + web visualization.
+  - You can use any carbon-compatible metrics collector instead of collectd. For visualization you can use something different from Graphite-web. Here is a full list of all [collectors and web-frontends](https://graphite.readthedocs.io/en/0.9.11/tools.html) compatible with carbon. Looks like a matter of taste, there is most likely no special difference between them.
+  - Obviously, it is more difficult to configure than "almost" ready-made solutions like those described above.
 
 * [Zabbix](https://github.com/zabbix/zabbix)
-  - Живой, 4.7k звёзд.
+  - Alive, 4.7k stars.
   - AGPL 3.0 Licence.
-  - Веб-интерфейс + демоны на узлах кластера.
-  - На первый взгляд процесс установки и настройки непонятный.
-  - [Поддерживаемые метрики](https://www.zabbix.com/documentation/current/en/manual/config/items/itemtypes/zabbix_agent)
+  - Web interface + daemons for collecting metrics.
+  - At first glance, the installation and configuration process is weird.
+  - List of [supported metrics](https://www.zabbix.com/documentation/current/en/manual/config/items/itemtypes/zabbix_agent)
 
