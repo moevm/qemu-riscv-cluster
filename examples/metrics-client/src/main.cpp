@@ -7,21 +7,19 @@
 
 double getMemoryUsed()
 {
-    uint64_t mem_total = 0, mem_free = 0;
+    uint64_t mem_total = 0, mem_free = 0, buffers = 0, cached = 0;
     FILE *fp = fopen("/proc/meminfo", "r");
     
     static char line[256];
     while (fgets(line, sizeof(line), fp)) {
         if (sscanf(line, "MemTotal: %lu", &mem_total) == 1) continue;
         if (sscanf(line, "MemFree: %lu", &mem_free) == 1) continue;
-    
-        if (mem_total != 0 && mem_free != 0) {
-            break;
-        }
+        if (sscanf(line, "Buffers: %lu", &buffers) == 1) continue;
+        if (sscanf(line, "Cached: %lu", &cached) == 1) continue;
     }
 
     fclose(fp);
-    return (double)(mem_total - mem_free) / (1024.0 * 1024.0 * 1024.0);
+    return (double)(mem_total - mem_free - buffers - cached) / (1024.0 * 1024.0);
 }
 
 struct {
