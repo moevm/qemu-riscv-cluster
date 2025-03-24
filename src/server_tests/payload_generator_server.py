@@ -109,7 +109,7 @@ def serve():
     )
 
     file_service_pb2_grpc.add_FileServiceServicer_to_server(
-        FileService(text_charset=AVAILABLE_CHARACTERS), 
+        FileService(text_charset=AVAILABLE_CHARACTERS),
         server
     )
     server.add_insecure_port(f'{host}:{port}')
