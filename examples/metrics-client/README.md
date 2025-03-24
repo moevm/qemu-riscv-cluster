@@ -1,28 +1,29 @@
-# Клиент для сбора метрик (Telegraf)
+# Client for metrics collection (Telegraf)
 
-Собирает базовые метрики (процессорное время и память), а также кастомную метрику `custom-metric.sh`. Она ничего не замеряет, просто вычисляет функцию синуса от текущего времени.
+Collects basic metrics (CPU time and memory) and custom metric `custom-metric.sh`.
+It does't actually measure anything, it just calculates a sine function.
 
-## Как запускать?
+## How to run?
 
-В реальных условиях клиенты-сборщики будут запущены на разных машинах с разными ip-адресами, но в демонстративных целях запустим несколько клиентов на одной машине:
+In a real scenario, the clients-collectors will be launched on different machines with different IP addresses, but for demonstration purposes, we will launch several clients on one machine:
 
-* Создать сеть:
+* Create a network:
 ```sh
 docker network create example-network
 ```
 
-* Собрать докер образ:
+* Build docker image:
 ```sh
 ./build.sh
 ```
 
-* Запустить докер контейнер первого клиента:
+* Run docker container for first client:
 ```sh
-docker run --network example-network --name client1 --rm -d qemu-riscv-cluster/metrics-clinet
+docker run --network example-network --name client1 --rm -d qemu-riscv-cluster/metrics-client
 ```
 
-* Запустить докер контейнер второго клиента:
+* Run docker container for second client:
 
 ```sh
-docker run --network example-network --name client2 --rm -d qemu-riscv-cluster/metrics-clinet
+docker run --network example-network --name client2 --rm -d qemu-riscv-cluster/metrics-client
 ```

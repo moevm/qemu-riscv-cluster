@@ -1,20 +1,20 @@
-# Сервер Prometheus
+# Prometheus server
 
-## Как запустить?
+## How to run?
 
-* Создать сеть, если еще не сделали этого, следуя инструкции из `metrics-client/README.md`:
+* Create a network if you haven't already done so, following the instructions in `metrics-client/README.md`:
 ```sh
 docker network create example-network
 ```
 
-* Собрать докер образ:
+* Build docker image:
 ```sh
 ./build.sh
 ```
 
-* Запустить докер контейнер:
+* Run docker container:
 ```
 docker run --network example-network --rm -p 9090:9090 qemu-riscv-cluster/metrics-server
 ```
 
-Теперь можно открыть фронтенд Prometheus'а в браузере: `localhost:9090`. Кастомная метрика называется `custom_fields_field_1`. Из дефолтных метрик интересуют `cpu_usage_user` и `mem_used`.
+Now you can open the Prometheus frontend in your browser at `localhost:9090`. The custom metric is called `custom_fields_field_1`. Default metrics are `cpu_usage_user`, `mem_used` and other.
