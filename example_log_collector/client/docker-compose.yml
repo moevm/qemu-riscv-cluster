@@ -1,0 +1,29 @@
+services:
+    cpp-app:
+      build: 
+        context: .
+        dockerfile: Dockerfile_app_cpp
+      logging:
+        driver: "fluentd"
+        options:
+          fluentd-address: "localhost:24224"
+          tag: "cpp-app.logs"
+          labels: "service,container_name"
+      networks:
+        - public
+    err-cpp:
+      build:
+        context: .
+        dockerfile: Dockerfile_err_cpp
+      logging:
+        driver: "fluentd"
+        options:
+          fluentd-address: "localhost:24224" 
+          tag: "cpp-app.logs"
+          labels: "service,container_name" 
+      networks:
+        - public
+networks:
+  public:
+    external: true
+    name: logging_public 
