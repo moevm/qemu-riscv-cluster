@@ -1,0 +1,44 @@
+services:
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./configs/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    networks:
+      - public
+      
+
+  loki:
+    image: grafana/loki:2.9.4
+    user: root
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./data/loki/data:/tmp/loki
+      - ./configs/loki/loki.yml:/mnt/loki-local-config.yaml
+    networks:
+      - public
+      
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki 
+    volumes:
+      - ./data/grafana/data:/var/lib/grafana
+      - ./configs/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+    networks:
+      - public
+
+networks:
+  public:
+    external: true
+    name: logging_public
+    
