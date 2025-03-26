@@ -1,5 +1,7 @@
 # qemu-riscv-cluster
 
+![Flake8 Status](https://img.shields.io/github/actions/workflow/status/moevm/qemu-riscv-cluster/.github/workflows/flake8.yml?branch=main&label=Flake8%20Check)
+
 ## Project structure
 -- This repository contains gRPC client and scripts to build and deploy workers in the RISC-V VM.
 

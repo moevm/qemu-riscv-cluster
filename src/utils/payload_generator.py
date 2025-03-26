@@ -3,6 +3,7 @@ import random
 import uuid
 from typing import Optional, Literal
 
+
 class PayloadGenerator:
     """
     This class is a payload generator.
@@ -18,7 +19,7 @@ class PayloadGenerator:
     ):
         if unit not in ("B", "KB", "MB"):
             raise ValueError("Invalid unit of measurement. Allowed: 'B', 'KB', 'MB'")
-        
+
         multipliers = {
             "B": 1,
             "KB": 1024,
@@ -86,7 +87,7 @@ class PayloadGenerator:
         """text data generation"""
         charset = self.text_charset
         buffer_size = 128 * 1024
-        
+
         with open(path, 'w', encoding='utf-8') as f:
             remaining = self.file_size
             buffer = []
@@ -100,11 +101,11 @@ class PayloadGenerator:
                 if len(encoded) > remaining:
                     encoded = encoded[:remaining]
                     chunk = encoded.decode('utf-8', errors='ignore')
-                
+
                 buffer.append(chunk)
                 current_buffer_size += len(encoded)
                 remaining -= len(encoded)
-                
+
                 if current_buffer_size >= buffer_size:
                     f.write(''.join(buffer))
                     buffer = []
