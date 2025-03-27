@@ -1,22 +1,22 @@
-# Инструменты для сбора логов 
+# Tools for collecting logs
 
-## Необходимый стек:
-  - [Реализация сбора логов: отправка данных из PUnit](#реализация-сбора-логов-отправка-данных-из-punit)
-  - [Сбор логов](#сбор-логов)
-  - [Хранилище логов](#хранилище-логов)
-  - [Визуализация и анализ логов](#визуализация-и-анализ-логов)
-  - [Пример стека](#пример-стека)
+## Required stack:
+  - [Implementing Log Collection: Sending Data from PUnit](#implementing-log-collection-sending-data-from-punit)
+  - [Log collection](#log-collection)
+  - [Log storage](#log-storage)
+  - [Log visualization and analysis](#log-visualization-and-analysis)
+  - [Stack example](#stack-example)
 
-## Реализация сбора логов: отправка данных из PUnit
+## Implementing Log Collection: Sending Data from PUnit
 
-Для организации сбора логов из PUnit в Docker-контейнере, необходимо настроить механизм логирования, который будет отправлять данные в систему сбора, хранения и визуализации логов.
+To organize the collection of logs from PUnit in a Docker container, it is necessary to set up a logging mechanism that will send data to the system for collecting, storing and visualizing logs.
 
-Добавление драйвера логирования в Docker-контейнер
-Для отправки логов из PUnit необходимо настроить драйвер логирования в Docker-контейнере. Docker поддерживает несколько драйверов логирования, которые можно использовать для отправки логов в различные системы. Основные варианты:
-- Драйвер json-file
-  - Это стандартный драйвер логирования Docker.
-  - Логи записываются в файлы на хосте в формате JSON.
-  - Пример настройки в docker-compose.yml:
+Adding a Logging Driver to a Docker Container
+To send logs from PUnit, you need to configure a logging driver in the Docker container. Docker supports several logging drivers that can be used to send logs to different systems. The main drivers are:
+- Driver json-file
+  - This is the standard Docker logging driver.
+  - Logs are written to files on the host in JSON format.
+  - Example of configuration in docker-compose.yml:
 ```
 services:
   punit:
@@ -27,11 +27,11 @@ services:
         max-size: "10m"
         max-file: "3"
 ```
-- Драйвер fluentd
-  - Отправляет логи напрямую в Fluentd или Fluent Bit.
-  - Подходит для централизованного сбора логов.
-  - Может работать как по TCP, так и по UDP.
-  - Пример настройки в docker-compose.yml:
+- Driver fluentd
+  - Sends logs directly to Fluentd or Fluent Bit.
+  - Suitable for centralized log collection.
+  - Can work both via TCP.
+  - Example of configuration in docker-compose.yml:
 ```
 services:
   app:
@@ -39,54 +39,54 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: udp://localhost:24224
+        fluentd-address: localhost:24224
         tag: app.logs
 ```
 
-## Сбор логов
+## Log collection
 - **[Fluent Bit](https://github.com/fluent/fluent-bit/releases)**
-  * поддержка архитекутры RISC-V (были трудности с версией [LuaJIT](https://chronosphere.io/learn/fluent-bit-risc-v/), возможно до сих пор существуют)
-  *  Совместимость с Prometheus и OpenTelemetry.
-  *  Написан на C.
-  *  Fluent Bit поддерживает множество плагинов для сбора, обработки и отправки данных.
-  *  Поддержка проекта, Last Version v3.2.8, Released On Mar 04, 2025, 6.6к звезд.
-  *    Apache License Version 2.0, January 2004
+    * RISC-V architecture support (there were some issues with [LuaJIT](https://chronosphere.io/learn/fluent-bit-risc-v/) version, maybe they still exist)
+    * Compatibility with Prometheus and OpenTelemetry.
+    * Written in C.
+    * Fluent Bit supports many plugins for collecting, processing and sending data.
+    * Project support, Last Version v3.2.8, Released On Mar 04, 2025, 6.6k stars.
+    * Apache License Version 2.0, January 2004
 - **[Fluentd](https://github.com/fluent/fluentd)**
-    * Более мощный аналог Fluent Bit.
-    * Требует больше ресурсов, чем Fluent Bit, но подходит для сложных сценариев.
+    * A more powerful analogue of Fluent Bit.
+    * Requires more resources than Fluent Bit, but is suitable for complex scenarios.
 - **[rsyslog](https://github.com/rsyslog/rsyslog.git)**
-    * Классический сборщик логов, использующий протокол Syslog.
-    * Написан на С.
-    * Последний релиз December 6, 2022; 2 years ago.
+    * Classic log collector using Syslog protocol.
+    * Written in C.
+    * Latest release December 6, 2022; 2 years ago.
 - **[syslog-ng](https://github.com/syslog-ng/syslog-ng)**
-    * Альтернатива rsyslog с более гибкой конфигурацией.
-    * Поддерживает множество форматов и протоколов.
+    * Alternative to rsyslog with more flexible configuration.
+    * Supports many formats and protocols.
 
-## Хранилище логов
+## Log storage
 - **[Elasticsearch](https://github.com/elastic/elasticsearch)**
-    * Интеграция с Fluent Bit через плагин elasticsearch
-    * Подходит для хранения и индексации больших объемов логов.
-    * Высокопроизводительная поисковая и аналитическая система.
+    * Fluent Bit integration via elasticsearch plugin
+    * Suitable for storing and indexing large volumes of logs.
+    * High-performance search and analytics system.
 - **[Loki](https://github.com/grafana/loki)**
-    * Легковесное хранилище логов, оптимизированное для работы с метками (labels).
-    * Потребляет меньше ресурсов, чем Elasticsearch.
-    * Интеграция с Fluent Bit через плагин loki.
-    * Тесная интеграция с Grafana.
+    * Lightweight log storage optimized for working with labels.
+    * Consumes fewer resources than Elasticsearch.
+    * Fluent Bit integration via loki plugin.
+    * Tight integration with Grafana.
     * AGPL-3.0 license
-## Визуализация и анализ логов
+## Log visualization and analysis
 - **[Kibana](https://github.com/elastic/kibana)**
-    * Визуализация и анализ данных, хранящихся в Elasticsearch
-    * Поддерживает сложные запросы, дашборды и алерты.
-    * В основном Elasticsearch.
-    * Часть экосистемы ELK (Elasticsearch, Logstash, Kibana).
+    * Visualization and analysis of data stored in Elasticsearch
+    * Supports complex queries, dashboards, and alerts.
+    * Mostly Elasticsearch.
+    * Part of the ELK ecosystem (Elasticsearch, Logstash, Kibana).
 - **[Grafana](https://github.com/grafana/grafana)**
-    * Универсальный инструмент для визуализации данных.
-    * Подходит для работы с Loki, Elasticsearch, Prometheus и другими источниками данных.
-    * Позволяет создавать дашборды и настраивать алерты.
-    * Множество источников (Prometheus, Loki, Elasticsearch, Graphite, InfluxDB и т.д.).
-    * Часть экосистемы Grafana (Prometheus, Loki, Tempo).
+    * Universal data visualization tool.
+    * Suitable for working with Loki, Elasticsearch, Prometheus and other data sources.
+    * Allows you to create dashboards and set up alerts.
+    * Multiple sources (Prometheus, Loki, Elasticsearch, Graphite, InfluxDB, etc.).
+    * Part of the Grafana ecosystem (Prometheus, Loki, Tempo).
 
 
-## Пример стека
+## Stack example
 - Fluent Bit + Loki + Grafana
-  настроить драйвер PUnit на отправку в Fluent Bit. Настройить конфигурацию Fluent Bit (Fluent Bit будет принимать логи от PUnit и отправлять их во внешний Loki). ОТправка данных из Fluent Bit в Loki. Подключение Grafana к Loki для визуализаии логов.
+  configure the PUnit driver to send to Fluent Bit. Configure Fluent Bit (Fluent Bit will receive logs from PUnit and send them to an external Loki). Sending data from Fluent Bit to Loki. Connecting Grafana to Loki for log visualization.
