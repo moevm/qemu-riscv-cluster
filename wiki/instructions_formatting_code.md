@@ -4,7 +4,7 @@
 
 - After cloning the project, run the `pre-commit install` command once in the virtual environment. Next, the hook will be triggered with each commit.
 
-- If black finds a problem in the code, he will fix it and you need to commit again.
+- If black finds a problem in the code, he will fix it, and you will need to repeat `git add .` and `git commit -m "name_commit"`
 
 - You can check for a hook with `cat command.git/hooks/pre-commit` if it returns the code then the hook is installed.
 
