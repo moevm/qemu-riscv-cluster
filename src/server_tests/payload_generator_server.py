@@ -3,12 +3,13 @@ import os
 import traceback
 from concurrent import futures
 from dotenv import load_dotenv
-from typing import Set, Optional
+from typing import Set
 from src.protobuf import file_service_pb2
 from src.protobuf import file_service_pb2_grpc
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', 'env', '.grpc.env'))
-AVAILABLE_CHARACTERS="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !?.,\n"
+AVAILABLE_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !?.,\n"
+
 
 class FileValidator:
     @staticmethod
@@ -23,7 +24,7 @@ class FileValidator:
         `charset: Set[str]` - A set of valid characters.
 
         Output data:
-    
+
         `bool` - True if the content is valid, otherwise False.
         """
         try:
@@ -47,11 +48,13 @@ class FileValidator:
         """
         return True
 
+
 class FileService(file_service_pb2_grpc.FileServiceServicer):
     def __init__(self, text_charset: str) -> None:
         self.text_charset: Set[str] = set(text_charset)
-        
-    def UploadFile(self, request: file_service_pb2.FileRequest, context: grpc.ServicerContext) -> file_service_pb2.FileResponse:
+
+    def UploadFile(self, request: file_service_pb2.FileRequest,
+                   context: grpc.ServicerContext) -> file_service_pb2.FileResponse:
         """
         Processes a request to upload a file.
 
@@ -62,7 +65,7 @@ class FileService(file_service_pb2_grpc.FileServiceServicer):
         `context: grpc.ServicerContext` - The gRPC Context
 
         Output data:
- 
+
         `file_service_pb2.FileResponse` - The response with the validation result.
         """
         try:
@@ -73,7 +76,7 @@ class FileService(file_service_pb2_grpc.FileServiceServicer):
                 is_valid = FileValidator.validate_text(request.content, self.text_charset)
             elif request.file_type == "binary":
                 is_valid = FileValidator.validate_binary(request.content)
-            
+
             return file_service_pb2.FileResponse(
                 size=actual_size,
                 is_valid=is_valid,
@@ -86,6 +89,7 @@ class FileService(file_service_pb2_grpc.FileServiceServicer):
             context.set_details(f"Error: {e}")
             return file_service_pb2.FileResponse()
 
+
 def serve():
     """
     Starts the gRPC server.
@@ -95,23 +99,24 @@ def serve():
     host = os.environ['GRPC_SERVER_HOST']
 
     options = [
-        ('grpc.max_receive_message_length', max_message_length), 
-        ('grpc.max_send_message_length', max_message_length), 
+        ('grpc.max_receive_message_length', max_message_length),
+        ('grpc.max_send_message_length', max_message_length),
     ]
-    
+
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=10),
         options=options
     )
-    
+
     file_service_pb2_grpc.add_FileServiceServicer_to_server(
-        FileService(text_charset=AVAILABLE_CHARACTERS), 
+        FileService(text_charset=AVAILABLE_CHARACTERS),
         server
     )
     server.add_insecure_port(f'{host}:{port}')
     server.start()
     print(f"Server started on port {port}")
     server.wait_for_termination()
+
 
 if __name__ == '__main__':
     serve()
