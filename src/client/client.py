@@ -1,12 +1,12 @@
 import grpc
 from dotenv import load_dotenv
 import os
-from typing import Optional
 from src.utils.payload_generator import PayloadGenerator
 from src.protobuf import file_service_pb2
 from src.protobuf import file_service_pb2_grpc
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", "env", ".grpc.env"))
+
 
 
 class FileClient:
@@ -21,6 +21,7 @@ class FileClient:
         ]
 
         self.channel: grpc.Channel = grpc.insecure_channel(f"{self.host}:{self.port}", options=options)
+
         self.stub: file_service_pb2_grpc.FileServiceStub = file_service_pb2_grpc.FileServiceStub(self.channel)
 
     def upload_and_validate(self, file_path: str, file_type: str) -> file_service_pb2.FileResponse:

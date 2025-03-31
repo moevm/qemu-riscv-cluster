@@ -10,6 +10,7 @@ sys.path.append(os.path.join(main_dir, "src", "protobuf"))
 
 from src.client.client import FileClient
 
+
 @pytest.fixture(scope="module")
 def grpc_server():
     controller_path = os.path.join(
@@ -17,14 +18,15 @@ def grpc_server():
     )
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
-    
+
     server_process = subprocess.Popen(
         ['python3', controller_path],
         env=env
     )
-    time.sleep(2) 
+    time.sleep(2)
     yield
     server_process.terminate()
+
 
 @pytest.fixture(scope="module")
 def grpc_client():
