@@ -8,7 +8,6 @@ from src.protobuf import file_service_pb2_grpc
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", "env", ".grpc.env"))
 
 
-
 class FileClient:
     def __init__(self):
         self.host: str = os.environ["GRPC_CLIENT_HOST"]
