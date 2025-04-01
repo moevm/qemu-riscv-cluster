@@ -5,4 +5,4 @@ project(daemon)
 find_package(prometheus-cpp CONFIG REQUIRED)
 
 add_executable(daemon src/main.cpp)
-target_link_libraries(daemon PRIVATE prometheus-cpp::pull)
+target_link_libraries(daemon PRIVATE prometheus-cpp::push)

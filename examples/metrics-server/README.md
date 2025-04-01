@@ -14,7 +14,7 @@ docker network create example-network
 
 * Run docker container:
 ```
-docker run --network example-network --rm -p 9090:9090 qemu-riscv-cluster/metrics-server
+docker run --network example-network --rm -p 9090:9090 --name server qemu-riscv-cluster/metrics-server
 ```
 
-Now you can open the Prometheus frontend in your browser at `localhost:9090`. The custom metric is called `custom_fields_field_1`. Default metrics are `cpu_usage_user`, `mem_used` and other.
+Now you can open the Prometheus frontend in your browser at `localhost:9090`.

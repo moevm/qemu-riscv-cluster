@@ -1,6 +1,8 @@
 FROM alpine:3.21
 
-RUN apk update && apk add prometheus
+RUN apk update && apk add prometheus pushgateway
 COPY . .
 
-ENTRYPOINT [ "prometheus" ]
+EXPOSE 9091
+
+ENTRYPOINT [ "sh", "entry.sh" ]
