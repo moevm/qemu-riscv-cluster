@@ -2,28 +2,37 @@ services:
     cpp-app:
       build: 
         context: .
-        dockerfile: Dockerfile_app_cpp
+        dockerfile: Dockerfile.app_cpp
       logging:
-        driver: "fluentd"
+        driver: loki
         options:
-          fluentd-address: "localhost:24224"
-          tag: "cpp-app.logs"
-          labels: "service,container_name"
-      networks:
-        - public
+          loki-timeout: 10s
+          no-file: "true"
+          loki-external-labels: "container_name={{.Name}}"
+          labels: "container_name, host"
+          loki-url:  "http://172.29.0.2:3100/loki/api/v1/push"
     err-cpp:
       build:
         context: .
-        dockerfile: Dockerfile_err_cpp
+        dockerfile: Dockerfile.err_cpp
       logging:
-        driver: "fluentd"
+        driver: loki
         options:
-          fluentd-address: "localhost:24224" 
-          tag: "cpp-app.logs"
-          labels: "service,container_name" 
-      networks:
-        - public
-networks:
-  public:
-    external: true
-    name: logging_public 
+          loki-url:  "http://172.29.0.2:3100/loki/api/v1/push" 
+    logging_app:
+      build: 
+        context: .
+        dockerfile: Dockerfile.py
+      container_name: logging_app
+      restart: unless-stopped
+      logging:
+        driver: loki
+        options:
+          loki-url:  "http://172.29.0.2:3100/loki/api/v1/push"
+          loki-pipeline-stages: |
+            - regex:
+                expression: '(level|lvl|severity)=(?P<level>\w+)'
+            - labels:
+                level: level
+      environment:
+        - PYTHONUNBUFFERED=1

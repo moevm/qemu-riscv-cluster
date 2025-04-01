@@ -1,17 +1,4 @@
 services:
-  fluent-bit:
-    image: grafana/fluent-bit-plugin-loki:latest
-    environment:
-      - LOKI_URL=http://loki:3100/loki/api/v1/push
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
-    volumes:
-      - ./configs/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    networks:
-      - public
-      
-
   loki:
     image: grafana/loki:2.9.4
     user: root
@@ -23,7 +10,8 @@ services:
       - ./data/loki/data:/tmp/loki
       - ./configs/loki/loki.yml:/mnt/loki-local-config.yaml
     networks:
-      - public
+      logging_net:
+        ipv4_address: 172.29.0.2
       
   grafana:
     image: grafana/grafana:latest
@@ -35,10 +23,12 @@ services:
       - ./data/grafana/data:/var/lib/grafana
       - ./configs/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
     networks:
-      - public
+      logging_net:
+        ipv4_address: 172.29.0.3
 
 networks:
-  public:
-    external: true
-    name: logging_public
+  logging_net:
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
     
