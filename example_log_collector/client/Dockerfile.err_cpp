@@ -1,0 +1,8 @@
+FROM gcc:latest
+
+WORKDIR /app
+COPY er_main.cpp .
+
+RUN g++ -o app er_main.cpp
+
+CMD /bin/sh -c 'while :; do ./app; sleep 10; done'
