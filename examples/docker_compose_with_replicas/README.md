@@ -1,6 +1,6 @@
-# Разработка docker-compose с зеркалированием контейнеров
+# Docker compose with replicas 
 
-## Структура
+## Tree
 
 ```
 deploy
@@ -23,20 +23,20 @@ deploy
 
 - Env. file: [.env](./deploy/.env)
 
-## Сборка и запуск
+## Build and run
 
-Для сборки и запуска необходимо перейти в директорию `deploy` и выполнить следующую команду:
+To build and run, go to the `deploy` directory and run the following command:
 
 ```
 docker compose build && docker compose up
 ```
 
-Для остановки контейнеров необходимо в директории `deploy` выполнить следующую команду:
+To stop, run the command:
 
 ```
 docker compose down
 ```
 
-## Резюме
+## Resume
 
-`docker compose` запускает один `central_node` с `alpine linux` на котором прослушивает весь сетевой трафик через `tcpdump`, а также несколько (количество задается через переменную `replicas` в `.env` файле) `replicated_nodes` с `alpine linux`, каждый из которых пингует через python-скрипт `central_node` и в случае успеха завешается с `exit code 0` через 60 секунд. Весь трафик поступающий в `central_node` сохраняется в `logs_volume` в формате .pcap файла, в директории `deploy/example_logs` можно найти [пример такого файла](./deploy/example_logs/traffic.pcap).
+Docker Compose runs one container -- `central_node` on which all network traffic is listened to via the `tcpdump` utility, as well as several (the number is set via the `replicas` variable in the `.env` file) containers -- `replicated_nodes`, each of which pings via a python script `central_node` and, if successful, terminates with an `exit code 0` after 60 seconds. All traffic coming into `central_node` is saved in the `logs_volume` in the .pcap file format [(example)](./deploy/example_logs/traffic.pcap).
