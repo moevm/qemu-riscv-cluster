@@ -1,7 +1,7 @@
-# Client for metrics collection (Telegraf)
+# Client for metrics collection
 
-Collects basic metrics (CPU time and memory) and custom metric `custom-metric.sh`.
-It does't actually measure anything, it just calculates a sine function.
+Uses [prometheus-cpp](https://github.com/jupp0r/prometheus-cpp) library. Collects basic metrics: `cpu_usage`,
+`memory_used` and `request_count`.
 
 ## How to run?
 
