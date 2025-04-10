@@ -22,7 +22,7 @@ services:
     logging_app:
       build: 
         context: .
-        dockerfile: Dockerfile.py
+        dockerfile: Dockerfile.python
       container_name: logging_app
       restart: unless-stopped
       logging:
