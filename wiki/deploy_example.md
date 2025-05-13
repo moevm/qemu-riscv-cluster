@@ -1,112 +1,108 @@
-# Инструкция по развертыванию системы
+# System deployment instructions
 
-## Архитектура системы
+## System architecture
 
-Система состоит из следующих компонентов:
-1. Несколько виртуальных машин с Linux
-2. Контроллер - центральный компонент управления (Go)
-   - Управляет worker'ами через Unix-сокеты
-   - Обеспечивает распределение задач
-3. Worker'ы - компоненты обработки (C++)
-   - Подключаются к контроллеру через Unix-сокеты
-   - Выполняют вычисление хешей
-4. Система мониторинга (Grafana, Prometheus, Loki)
+The system consists of the following components:
+1. Several virtual machines with Linux
+2. Controller - the central control component (Go)
+- Manages workers via Unix sockets
+- Provides task distribution
+3. Workers - processing components (C++)
+- Connect to the controller via Unix sockets
+- Perform hash calculations
+4. Monitoring system (Grafana, Prometheus, Loki)
 
-## Порядок развертывания
+## Deployment procedure
 
-### 1. Подготовка окружения
+### 1. Preparing the environment
 
-На хост-машине должны быть установлены:
-- Linux с поддержкой KVM
-- Docker и Docker Compose
+The host machine must have the following installed:
+- Linux with KVM support
+- Docker and Docker Compose
 
+### 2. Creating base images using Yocto
 
-### 2. Создание базовых образов с помощью Yocto
+1. Preparing Yocto layers: Creating a custom layer for our components
+2. Setting up a layer for the controller
+3. Setting up a layer for the worker
+4. Building images
 
-1. Подготовка Yocto-слоев: Создание собственного слоя для наших компонентов
-2. Настройка слоя для контроллера
-3. Настройка слоя для worker'а
-4. Сборка образов
+### 3. Launching virtual machines
 
+1. The ports.conf file specifies ports for each VM (one port per line)
+2. The run.sh script reads this file and starts the corresponding number of VMs
+3. SSH port forwarding is configured for each VM
+4. The first VM (the first port in the list) will be used for the controller
+5. The remaining VMs will be used for workers
 
-### 3. Запуск виртуальных машин
+### 4. Starting the monitoring system
 
-1. В файле ports.conf указываются порты для каждой VM (по одному порту на строку)
-2. Скрипт run.sh читает этот файл и запускает соответствующее количество VM
-3. Для каждой VM настраивается проброс портов SSH
-4. Первая VM (первый порт в списке) будет использоваться для контроллера
-5. Остальные VM будут использоваться для worker'ов
+The monitoring stack is launched on the host machine (using docker-compose):
+1. Grafana - for visualization
+2. Prometheus - for collecting metrics
+3. Loki - for collecting logs
 
-### 4. Запуск системы мониторинга
+### 5. Deploying the controller
 
-На хост-машине запускается стек мониторинга(с помощью docker-compose):
-1. Grafana - для визуализации
-2. Prometheus - для сбора метрик
-3. Loki - для сбора логов
+The controller is launched on the first VM via docker-compose:
+* Compiling Go code via Bazel in a container
+* Using a prepared Yocto image for launching
+* Setting up a volume for a Unix socket
+* Exporting metrics for Prometheus
+* Sending logs to Loki
 
-### 5. Развертывание контроллера
+### 6. Deploying workers
 
-На первой VM запускается контроллер через docker-compose:
-* Компиляция Go кода через Bazel в контейнере
-* Использование подготовленного Yocto-образа для запуска
-* Настройка volume для Unix-сокета
-* Экспорт метрик для Prometheus
-* Отправка логов в Loki
+Launch a worker on each VM via docker-compose:
+* Compiling C++ code via Bazel in a container
+* Using a prepared Yocto image to launch
+* Connecting to the controller's Unix socket
+* Exporting metrics for Prometheus
+* Sending logs to Loki
 
+### 7. Checking health
 
-### 6. Развертывание worker'ов
+1. Checking Grafana for:
+- Controller status
+- Status of each worker
+- Performance metrics
+- System resources
 
-На каждой VM запускается worker через docker-compose:
-* Компиляция C++ кода через Bazel в контейнере
-* Использование подготовленного Yocto-образа для запуска
-* Подключение к Unix-сокету контроллера
-* Экспорт метрик для Prometheus
-* Отправка логов в Loki
+2. Checking controller logs for:
+- Creating a Unix socket
+- ​​Connecting workers
+- No interaction errors
 
+### 8. System management
 
-### 7. Проверка работоспособности
+Basic management operations:
+1. Stopping/starting individual workers
+2. Restarting the controller if necessary
+3. Stopping the system completely in the following order:
+- Stopping all workers
+- Stopping the controller
+- Stopping virtual machines
+- Stopping the monitoring system
 
-1. В Grafana проверяется:
-   - Статус контроллера
-   - Статус каждого worker'а
-   - Метрики производительности
-   - Системные ресурсы
+### 9. Troubleshooting
 
-2. В логах контроллера проверяется:
-   - Создание Unix-сокета
-   - Подключение worker'ов
-   - Отсутствие ошибок взаимодействия
+If problems occur, the following is checked:
+1. Availability of SSH for VM management
+2. Availability and access rights to the Unix socket
+3. Controller logs for IPC errors
+4. Worker logs to check the connection
+5. Metrics in Prometheus
+6. Docker container status
 
-### 8. Управление системой
+## Important notes
 
-Основные операции управления:
-1. Остановка/запуск отдельных worker'ов
-2. Перезапуск контроллера при необходимости
-3. Полная остановка системы в следующем порядке:
-   - Остановка всех worker'ов
-   - Остановка контроллера
-   - Остановка виртуальных машин
-   - Остановка системы мониторинга
-
-### 9. Устранение неполадок
-
-При возникновении проблем проверяется:
-1. Доступность SSH для управления VM
-2. Наличие и права доступа к Unix-сокету
-3. Логи контроллера на предмет ошибок IPC
-4. Логи worker'ов для проверки подключения
-5. Метрики в Prometheus
-6. Состояние Docker контейнеров
-
-## Важные замечания
-
-1. Порядок запуска важен: сначала контроллер, затем worker'ы
-2. Базовые образы создаются с помощью Yocto для оптимизации и минимизации размера
-3. Docker-образы используют минимальные базовые образы из Yocto
-4. Коммуникация между контроллером и worker'ами через Unix-сокеты
-5. SSH используется только для управления VM
-6. Мониторинг осуществляется централизованно через Grafana
-7. Сборка компонентов происходит через Bazel внутри Docker с использованием оптимизированных Yocto-образов
-8. При обновлении кода:
-   - Пересборка соответствующего Docker-образа
-   - Обновление контейнеров в системе
+1. The order of startup is important: first the controller, then the workers
+2. Base images are built using Yocto for optimization and size minimization
+3. Docker images use minimal base images from Yocto
+4. Communication between the controller and workers is via Unix sockets
+5. SSH is used only for VM management
+6. Monitoring is performed centrally via Grafana
+7. Components are built via Bazel inside Docker using optimized Yocto images
+8. When updating the code:
+- Rebuild the corresponding Docker image
+- Update containers in the system
