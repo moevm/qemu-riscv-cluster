@@ -1,156 +1,133 @@
-# System Deployment Guide
+# Инструкция по развертыванию системы
 
-## System Architecture
+## Архитектура системы
 
-The system consists of the following components:
+Система состоит из следующих компонентов:
+1. Несколько виртуальных машин RISC-V, созданных с помощью QEMU
+2. Контроллер - центральный компонент управления (Go)
+   - Управляет worker'ами через Unix-сокеты
+   - Обеспечивает распределение задач
+3. Worker'ы - компоненты обработки (C++)
+   - Подключаются к контроллеру через Unix-сокеты
+   - Выполняют вычисление хешей
+4. Система мониторинга (Grafana, Prometheus, Loki)
 
-1. Multiple Linux virtual machines
-2. Controller – the central management component (Go)
+## Порядок развертывания
 
-   * Manages workers via Unix sockets
-   * Distributes tasks among workers
-3. Workers – processing components (C++)
+### 1. Подготовка окружения
 
-   * Connect to the controller via Unix sockets
-   * Perform hash computations
-4. Monitoring stack (Grafana, Prometheus, Loki)
+На хост-машине должны быть установлены:
+- Linux с поддержкой KVM
+- QEMU для эмуляции RISC-V
 
-## Deployment Procedure
+### 2. Подготовка компонентов
 
-### 1. Environment Preparation
+1. Подготовка базовых образов:
+   - Создание образа для контроллера через Yocto:
+     * Оптимизированный образ для RISC-V
+     * Включает необходимые зависимости для Go
+     * Настроен для работы с метриками и логами
+   - Создание образа для worker'а через Yocto:
+     * Оптимизированный образ для RISC-V
+     * Включает необходимые C++ runtime зависимости
+     * Настроен для работы с метриками и логами
 
-The host machine must have:
+2. Компиляция и развертывание контроллера:
+   
+   - Процесс:
+     * Компиляция Go кода через Bazel в контейнере
+     * Использование подготовленного Yocto-образа для запуска
+     * Настройка volume для Unix-сокета
+     * Экспорт метрик для Prometheus
+     * Отправка логов в Loki
 
-* Linux with KVM support
-* Docker and Docker Compose
-* Git to work with the repository
+3. Компиляция и развертывание worker'ов:
+   
+   - Процесс:
+     * Компиляция C++ кода через Bazel в контейнере
+     * Использование подготовленного Yocto-образа для запуска
+     * Подключение к Unix-сокету контроллера
+     * Экспорт метрик для Prometheus
+     * Отправка логов в Loki
 
-### 2. Component Preparation
+4. Важные моменты:
+   - Компиляция происходит в отдельных контейнерах с Bazel
+   - Запуск осуществляется на образах, собранных через Yocto
+   - Каждый компонент имеет свой docker-compose.yml
+   - Настроен сбор метрик и логов для мониторинга
 
-1. Controller preparation:
+### 3. Мониторинг
 
-   * Build and create Docker image:
+1. Prometheus:
+   - Сбор метрик с контроллера и worker'ов
+   - Настройка целей через service discovery
+   - Хранение исторических данных
 
-     ```bash
-     cd controller
-     docker build -f Dockerfile.controller -t controller:latest .
-     ```
-   * Build notes:
+2. Loki:
+   - Централизованный сбор логов
+   - Агрегация логов со всех компонентов
+   - Структурированное хранение
 
-     * Uses a Bazel-based base image
-     * Go code is built inside the container via Bazel
-     * A volume is created for the Unix socket
+3. Grafana:
+   - Визуализация метрик из Prometheus
+   - Просмотр логов из Loki
+   - Настроенные дашборды для мониторинга
 
-2. Worker preparation:
+## Важные замечания
 
-   * Build and create Docker image:
+1. Порядок запуска важен: сначала контроллер, затем worker'ы
+2. Все компоненты запускаются через Docker Compose
+3. Коммуникация через Unix-сокеты
+4. SSH используется только для управления VM
+5. Базовые образы создаются через Yocto
+6. Компиляция происходит через Bazel в контейнере
+7. При обновлении кода:
+   - Остановка соответствующего сервиса
+   - Пересборка через docker-compose up --build
+   - Логи и метрики сохраняются в системе мониторинга
 
-     ```bash
-     cd controller
-     docker build -f Dockerfile.worker -t worker:latest .
-     ```
-   * Build notes:
+### 7. Проверка работоспособности
 
-     * Uses a Bazel-based base image
-     * C++ code is built inside the container
-     * Environment is configured for the worker
+1. В Grafana проверяется:
+   - Статус контроллера
+   - Статус каждого worker'а
+   - Метрики производительности
+   - Системные ресурсы
 
-3. Key build notes:
+2. В логах контроллера проверяется:
+   - Создание Unix-сокета
+   - Подключение worker'ов
+   - Отсутствие ошибок взаимодействия
 
-   * Bazel is used for both Go and C++ code
-   * Build happens entirely inside the Docker container
-   * All dependencies are defined in WORKSPACE and BUILD files
-   * Docker images contain only the necessary runtime files
+### 8. Управление системой
 
-4. Verification:
+Основные операции управления:
+1. Остановка/запуск отдельных worker'ов
+2. Перезапуск контроллера при необходимости
+3. Полная остановка системы в следующем порядке:
+   - Остановка всех worker'ов
+   - Остановка контроллера
+   - Остановка виртуальных машин
+   - Остановка системы мониторинга
 
-   * Run tests via Bazel
-   * Verify Docker image correctness
-   * Test functionality on the target system
+### 9. Устранение неполадок
 
-### 3. Launching Virtual Machines
+При возникновении проблем проверяется:
+1. Доступность SSH для управления VM
+2. Наличие и права доступа к Unix-сокету
+3. Логи контроллера на предмет ошибок IPC
+4. Логи worker'ов для проверки подключения
+5. Метрики в Prometheus
+6. Состояние Docker контейнеров
 
-1. The `ports.conf` file lists ports for each VM (one port per line)
-2. The `run.sh` script reads this file and launches the required number of VMs
-3. SSH port forwarding is set up for each VM
-4. The first VM (first port in the list) is used for the controller
-5. The remaining VMs are used for the workers
+## Важные замечания
 
-### 4. Launching the Monitoring Stack
-
-The monitoring stack is launched on the host using Docker Compose:
-
-1. Grafana – for visualization
-2. Prometheus – for metrics collection
-3. Loki – for log collection
-
-### 5. Deploying the Controller
-
-1. The controller is launched on the first VM using Docker Compose
-2. In `docker-compose.controller.yml`, configure:
-
-   * Path to the Unix socket for communication with workers
-   * Port for Prometheus metrics
-   * Loki log forwarding settings
-3. The Unix socket is mounted into the container via a volume
-
-### 6. Deploying the Workers
-
-1. Each VM runs a worker via Docker Compose
-2. Each worker has its own configuration:
-
-   * The same Unix socket path is mounted in `docker-compose.yml`
-   * CPU binding is configured via Docker
-   * Metrics and log forwarding parameters are set
-
-### 7. Verifying Functionality
-
-1. In Grafana, verify:
-
-   * Controller status
-   * Status of each worker
-   * Performance metrics
-   * System resource usage
-
-2. In controller logs, verify:
-
-   * Unix socket creation
-   * Worker connections
-   * No IPC communication errors
-
-### 8. System Management
-
-Main management operations:
-
-1. Start/stop individual workers
-2. Restart the controller if necessary
-3. Full system shutdown in the following order:
-
-   * Stop all workers
-   * Stop the controller
-   * Stop the virtual machines
-   * Stop the monitoring stack
-
-### 9. Troubleshooting
-
-In case of issues, check:
-
-1. SSH availability for VM management
-2. Presence and permissions of the Unix socket
-3. Controller logs for IPC errors
-4. Worker logs for connection issues
-5. Metrics in Prometheus
-6. Docker container status
-
-## Important Notes
-
-1. Startup order is important: controller first, then workers
-2. All components run inside Docker containers
-3. Communication between controller and workers is via Unix sockets
-4. SSH is used only for managing VMs
-5. Centralized monitoring via Grafana
-6. All components are built with Bazel inside Docker
-7. When updating code:
-
-   * Rebuild the corresponding Docker image
-   * Update the containers in the system
+1. Порядок запуска важен: сначала контроллер, затем worker'ы
+2. Все компоненты работают в Docker контейнерах
+3. Коммуникация между контроллером и worker'ами через Unix-сокеты
+4. SSH используется только для управления VM
+5. Мониторинг осуществляется централизованно через Grafana
+6. Сборка кода происходит через Bazel в контейнере
+7. При обновлении кода:
+   - Пересборка через Bazel в контейнере
+   - Перезапуск обновленных компонентов 
