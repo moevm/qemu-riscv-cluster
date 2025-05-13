@@ -1,133 +1,133 @@
-# Инструкция по развертыванию системы
+# System deployment instructions
 
-## Архитектура системы
+## System architecture
 
-Система состоит из следующих компонентов:
-1. Несколько виртуальных машин RISC-V, созданных с помощью QEMU
-2. Контроллер - центральный компонент управления (Go)
-   - Управляет worker'ами через Unix-сокеты
-   - Обеспечивает распределение задач
-3. Worker'ы - компоненты обработки (C++)
-   - Подключаются к контроллеру через Unix-сокеты
-   - Выполняют вычисление хешей
-4. Система мониторинга (Grafana, Prometheus, Loki)
+The system consists of the following components:
+1. Several RISC-V virtual machines created with QEMU
+2. Controller - central control component (Go)
+- Manages workers via Unix sockets
+- Provides task distribution
+3. Workers - processing components (C++)
+- Connect to the controller via Unix sockets
+- Perform hash calculations
+4. Monitoring system (Grafana, Prometheus, Loki)
 
-## Порядок развертывания
+## Deployment procedure
 
-### 1. Подготовка окружения
+### 1. Preparing the environment
 
-На хост-машине должны быть установлены:
-- Linux с поддержкой KVM
-- QEMU для эмуляции RISC-V
+The host machine must have the following installed:
+- Linux with KVM support
+- QEMU for RISC-V emulation
 
-### 2. Подготовка компонентов
+### 2. Preparing components
 
-1. Подготовка базовых образов:
-   - Создание образа для контроллера через Yocto:
-     * Оптимизированный образ для RISC-V
-     * Включает необходимые зависимости для Go
-     * Настроен для работы с метриками и логами
-   - Создание образа для worker'а через Yocto:
-     * Оптимизированный образ для RISC-V
-     * Включает необходимые C++ runtime зависимости
-     * Настроен для работы с метриками и логами
+1. Preparing base images:
+- Creating an image for the controller via Yocto:
+* Optimized image for RISC-V
+* Includes the necessary dependencies for Go
+* Configured for operation with metrics and logs
+- Creating an image for a worker via Yocto:
+* Optimized image for RISC-V
+* Includes the necessary C++ runtime dependencies
+* Configured to work with metrics and logs
 
-2. Компиляция и развертывание контроллера:
-   
-   - Процесс:
-     * Компиляция Go кода через Bazel в контейнере
-     * Использование подготовленного Yocto-образа для запуска
-     * Настройка volume для Unix-сокета
-     * Экспорт метрик для Prometheus
-     * Отправка логов в Loki
+2. Compiling and deploying the controller:
 
-3. Компиляция и развертывание worker'ов:
-   
-   - Процесс:
-     * Компиляция C++ кода через Bazel в контейнере
-     * Использование подготовленного Yocto-образа для запуска
-     * Подключение к Unix-сокету контроллера
-     * Экспорт метрик для Prometheus
-     * Отправка логов в Loki
+- Process:
+* Compiling Go code via Bazel in a container
+* Using a prepared Yocto image to run
+* Setting up a volume for a Unix socket
+* Exporting metrics for Prometheus
+* Sending logs to Loki
 
-4. Важные моменты:
-   - Компиляция происходит в отдельных контейнерах с Bazel
-   - Запуск осуществляется на образах, собранных через Yocto
-   - Каждый компонент имеет свой docker-compose.yml
-   - Настроен сбор метрик и логов для мониторинга
+3. Compiling and deploying workers:
 
-### 3. Мониторинг
+- Process:
+* Compiling C++ code via Bazel in a container
+* Using a prepared Yocto image to run
+* Connecting to the controller's Unix socket
+* Exporting metrics for Prometheus
+* Sending logs to Loki
+
+4. Important points:
+- Compilation occurs in separate containers with Bazel
+- Launching is performed on images built via Yocto
+- Each component has its own docker-compose.yml
+- Collection of metrics and logs for monitoring is configured
+
+### 3. Monitoring
 
 1. Prometheus:
-   - Сбор метрик с контроллера и worker'ов
-   - Настройка целей через service discovery
-   - Хранение исторических данных
+- Collection of metrics from the controller and workers
+- Setting up goals via service discovery
+- Storing historical data
 
 2. Loki:
-   - Централизованный сбор логов
-   - Агрегация логов со всех компонентов
-   - Структурированное хранение
+- Centralized log collection
+- Aggregation of logs from all components
+- Structured storage
 
 3. Grafana:
-   - Визуализация метрик из Prometheus
-   - Просмотр логов из Loki
-   - Настроенные дашборды для мониторинга
+- Visualization of metrics from Prometheus
+- Viewing logs from Loki
+- Configured dashboards for monitoring
 
-## Важные замечания
+## Important notes
 
-1. Порядок запуска важен: сначала контроллер, затем worker'ы
-2. Все компоненты запускаются через Docker Compose
-3. Коммуникация через Unix-сокеты
-4. SSH используется только для управления VM
-5. Базовые образы создаются через Yocto
-6. Компиляция происходит через Bazel в контейнере
-7. При обновлении кода:
-   - Остановка соответствующего сервиса
-   - Пересборка через docker-compose up --build
-   - Логи и метрики сохраняются в системе мониторинга
+1. The order of launch is important: first the controller, then the workers
+2. All components are launched via Docker Compose
+3. Communication via Unix sockets
+4. SSH is used only for VM management
+5. Base images are created via Yocto
+6. Compilation occurs via Bazel in a container
+7. When updating the code:
+- Stopping the corresponding service
+- Rebuild via docker-compose up --build
+- Logs and metrics are saved in the monitoring system
 
-### 7. Проверка работоспособности
+### 7. Health check
 
-1. В Grafana проверяется:
-   - Статус контроллера
-   - Статус каждого worker'а
-   - Метрики производительности
-   - Системные ресурсы
+1. Grafana checks:
+- Controller status
+- Status of each worker
+- Performance metrics
+- System resources
 
-2. В логах контроллера проверяется:
-   - Создание Unix-сокета
-   - Подключение worker'ов
-   - Отсутствие ошибок взаимодействия
+2. Controller logs check:
+- Creating a Unix socket
+- ​​Connecting workers
+- No interaction errors
 
-### 8. Управление системой
+### 8. System management
 
-Основные операции управления:
-1. Остановка/запуск отдельных worker'ов
-2. Перезапуск контроллера при необходимости
-3. Полная остановка системы в следующем порядке:
-   - Остановка всех worker'ов
-   - Остановка контроллера
-   - Остановка виртуальных машин
-   - Остановка системы мониторинга
+Basic management operations:
+1. Stopping/starting individual workers
+2. Restarting the controller if necessary
+3. Completely stopping the system in the following order:
+- Stopping all workers
+- Stopping the controller
+- Stopping virtual machines
+- Stopping the monitoring system
 
-### 9. Устранение неполадок
+### 9. Troubleshooting
 
-При возникновении проблем проверяется:
-1. Доступность SSH для управления VM
-2. Наличие и права доступа к Unix-сокету
-3. Логи контроллера на предмет ошибок IPC
-4. Логи worker'ов для проверки подключения
-5. Метрики в Prometheus
-6. Состояние Docker контейнеров
+If problems arise, the following is checked:
+1. SSH availability for VM management
+2. Availability and access rights to the Unix socket
+3. Controller logs for errors IPC
+4. Worker logs to check the connection
+5. Metrics in Prometheus
+6. Docker container status
 
-## Важные замечания
+## Important notes
 
-1. Порядок запуска важен: сначала контроллер, затем worker'ы
-2. Все компоненты работают в Docker контейнерах
-3. Коммуникация между контроллером и worker'ами через Unix-сокеты
-4. SSH используется только для управления VM
-5. Мониторинг осуществляется централизованно через Grafana
-6. Сборка кода происходит через Bazel в контейнере
-7. При обновлении кода:
-   - Пересборка через Bazel в контейнере
-   - Перезапуск обновленных компонентов 
+1. The order of startup is important: first the controller, then the workers
+2. All components run in Docker containers
+3. Communication between the controller and workers is via Unix sockets
+4. SSH is used only for VM management
+5. Monitoring is performed centrally via Grafana
+6. Code is built via Bazel in the container
+7. When updating the code:
+- Rebuild via Bazel in the container
+- Restart updated components
