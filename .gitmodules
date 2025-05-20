@@ -1,0 +1,6 @@
+[submodule "external/grpc_server"]
+	path = external/grpc_server
+	url = https://github.com/moevm/grpc_server
+[submodule "external/vm_build_risc_v"]
+	path = external/vm_build_risc_v
+	url = https://github.com/moevm/vm_build_risc_v
