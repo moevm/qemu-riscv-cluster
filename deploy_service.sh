@@ -43,6 +43,10 @@ function start_services() {
         echo "Error: Repository does not exist"
         exit 1
     fi
+
+    mkdir -p /run/controller
+
+    chmod 777 /run/controller
     
     docker-compose -f "$LOG_COMPOSE_FILE" up -d --build
     
