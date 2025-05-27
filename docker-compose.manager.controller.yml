@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  controller:
+    user: "1001:1001"
+    build:
+      context: external/grpc_server/controller
+      dockerfile: Dockerfile.controller
+    volumes:
+      - /run/controller:/run/controller
+    restart: always
+    logging:
+        driver: loki
+        options:
+          loki-timeout: 10s
+          no-file: "true"
+          loki-url:  "http://localhost:3100/loki/api/v1/push"
+          loki-pipeline-stages: |
+            - regex:
+                expression: '(level|lvl|severity)=(?P<level>\w+)'
+            - labels:
+                level: level
+
+  replicated_worker:
+    build:
+      context: external/grpc_server
+      dockerfile: Dockerfile.hash
+    user: "1001:1001"
+    volumes:
+      - /run/controller:/run/controller
+    environment:
+      - METRICS_GATEWAY_ADDRESS=localhost
+      - METRICS_GATEWAY_PORT=9091
+      - METRICS_WORKER_NAME=${worker}
+    container_name: "${worker}"
+    depends_on:
+      - controller
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-3}
+    logging:
+        driver: loki
+        options:
+          loki-timeout: 10s
+          no-file: "true"
+          loki-url: "http://localhost:3100/loki/api/v1/push"
+          loki-pipeline-stages: |
+            - regex:
+                expression: '(level|lvl|severity)=(?P<level>\w+)'
+            - labels:
+                level: level
