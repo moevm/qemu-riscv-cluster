@@ -1,52 +1,33 @@
 #!/bin/bash
 set -e
 
-REPO_DIR="grpc_server"
-REPO_URL="https://github.com/moevm/grpc_server.git"
+REPO_DIR="external/grpc_server"
 LOG_COMPOSE_FILE="log_and_metric/docker-compose.yml"
 MAIN_COMPOSE_FILE="docker-compose.manager.controller.yml"
 DEFAULT_REPLICAS=5
 
-function clone_repo() {
-    if [ -d "$REPO_DIR" ]; then
-        echo "Error: Repository already exists"
-        exit 1
-    fi
-    git clone "$REPO_URL"
-    echo "Repository successfully cloned"
-}
-
-function update_repo() {
+function update_submodule() {
     if [ ! -d "$REPO_DIR" ]; then
-        echo "Error: Repository does not exist"
+        echo "Error: Submodule does not exist"
         exit 1
     fi
-    cd "$REPO_DIR"
-    git pull origin master
-    cd ..
-    echo "Repository successfully updated"
-}
-
-function remove_repo() {
-    if [ ! -d "$REPO_DIR" ]; then
-        echo "Error: Repository does not exist"
-        exit 1
-    fi
-    rm -rf "$REPO_DIR"
-    echo "Repository successfully removed"
+    git submodule update --init --recursive
+    echo "Submodule successfully updated"
 }
 
 function start_services() {
     local replicas=${1:-$DEFAULT_REPLICAS}
     
     if [ ! -d "$REPO_DIR" ]; then
-        echo "Error: Repository does not exist"
+        echo "Error: Submodule does not exist"
         exit 1
     fi
 
-    mkdir -p /run/controller
+    # sudo useradd -u 1001 -g service service
+    # sudo useradd -u 1001 -g service service
 
-    chmod 777 /run/controller
+    mkdir -p /run/controller
+    chown service:service /run/controller
     
     docker-compose -f "$LOG_COMPOSE_FILE" up -d --build
     
@@ -57,7 +38,7 @@ function start_services() {
 
 function stop_services() {
     if [ ! -d "$REPO_DIR" ]; then
-        echo "Error: Repository does not exist"
+        echo "Error: Submodule does not exist"
         exit 1
     fi
     
@@ -78,9 +59,9 @@ function full_reset() {
     local replicas=${1:-$DEFAULT_REPLICAS}
     stop_services
     if [ -d "$REPO_DIR" ]; then
-        remove_repo
+        remove_submodule
     fi
-    clone_repo
+    init_submodule
     start_services $replicas
 }
 
@@ -88,25 +69,17 @@ function show_help() {
     echo "Usage: $0 [command] [replicas]"
     echo ""
     echo "Commands:"
-    echo "  clone               - Clone repository"
-    echo "  update              - Update repository"
-    echo "  remove              - Remove repository"
+    echo "  update              - Update submodule"
     echo "  start [replicas]    - Start services (default: $DEFAULT_REPLICAS replicas)"
     echo "  stop                - Stop services"
     echo "  restart [replicas]  - Restart services (default: $DEFAULT_REPLICAS replicas)"
-    echo "  reset [replicas]    - Full reset (stop, remove, clone, start)"
+    echo "  reset [replicas]    - Full reset (stop, remove, init, start)"
     echo "  help                - Show help message"
 }
 
 case "$1" in
-    clone)
-        clone_repo
-        ;;
     update)
-        update_repo
-        ;;
-    remove)
-        remove_repo
+        update_submodule
         ;;
     start)
         start_services "$2"
