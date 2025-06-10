@@ -1,16 +1,19 @@
 #!/bin/bash
 set -e
 
+# Load environment variables
+if [ -f log_and_metric/.env ]; then
+    source log_and_metric/.env
+else
+    echo "Error: .env file not found"
+    exit 1
+fi
+
 # Default configuration
 TEST_DURATION=60
 CONCURRENT_USERS=3
 TEST_FILE_SIZE="10KB"
 TEST_FILE_TYPE="text"
-
-# Service endpoints
-GRAFANA_URL="http://localhost:3000"
-PROMETHEUS_URL="http://localhost:9090"
-LOKI_URL="http://localhost:3100"
 
 # Parse CLI arguments
 while [[ "$#" -gt 0 ]]; do
