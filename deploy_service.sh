@@ -22,12 +22,6 @@ function start_services() {
         echo "Error: Submodule does not exist"
         exit 1
     fi
-
-    # sudo useradd -u 1001 -g service service
-    # sudo useradd -u 1001 -g service service
-
-    mkdir -p /run/controller
-    chown service:service /run/controller
     
     docker-compose -f "$LOG_COMPOSE_FILE" up -d --build
     
