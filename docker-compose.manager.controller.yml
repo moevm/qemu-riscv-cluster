@@ -15,8 +15,10 @@ services:
     volumes:
       - controller_run:/run/controller 
     restart: always
+    network_mode: host
+    user: "1000:1000"
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "${SERVER_PORT}:50051"
     logging:
       driver: loki
       options:
@@ -29,6 +31,7 @@ services:
           - labels:
               level: level
   replicated_worker:
+    user: "1000:1000"
     build:
       context: external/grpc_server
       dockerfile: Dockerfile.hash
@@ -37,8 +40,7 @@ services:
     environment:
       - METRICS_GATEWAY_ADDRESS=${METRICS_GATEWAY_ADDRESS}
       - METRICS_GATEWAY_PORT=${METRICS_GATEWAY_PORT}
-      - METRICS_WORKER_NAME=${worker}
-    container_name: "${worker}"
+    network_mode: host
     depends_on:
       - controller
     restart: always

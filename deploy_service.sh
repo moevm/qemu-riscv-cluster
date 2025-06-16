@@ -1,4 +1,14 @@
 #!/bin/bash
+
+if docker-compose --version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker-compose"
+elif docker compose --version >/dev/null 2>&1; then
+    DOCKER_COMPOSE_CMD="docker compose"
+else
+    echo "Error: No valid Docker Compose command found" >&2
+    exit 1
+fi
+
 set -e
 
 REPO_DIR="external/grpc_server"
@@ -22,10 +32,9 @@ function start_services() {
         echo "Error: Submodule does not exist"
         exit 1
     fi
-    
-    docker-compose -f "$LOG_COMPOSE_FILE" up -d --build
-    
-    REPLICAS=$replicas docker-compose -f "$MAIN_COMPOSE_FILE" up -d --build
+
+    ${DOCKER_COMPOSE_CMD} -f "$LOG_COMPOSE_FILE" up -d --build    
+    REPLICAS=$replicas ${DOCKER_COMPOSE_CMD} -f "$MAIN_COMPOSE_FILE" up -d --build
     
     echo "All services successfully started with $replicas replicas"
 }
@@ -36,9 +45,9 @@ function stop_services() {
         exit 1
     fi
     
-    docker-compose -f "$MAIN_COMPOSE_FILE" down || true
+    ${DOCKER_COMPOSE_CMD} -f "$MAIN_COMPOSE_FILE" down || true
     
-    docker-compose -f "$LOG_COMPOSE_FILE" down || true
+    ${DOCKER_COMPOSE_CMD} -f "$LOG_COMPOSE_FILE" down || true
     
     echo "All services successfully stopped"
 }
