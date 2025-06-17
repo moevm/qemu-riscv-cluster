@@ -17,8 +17,6 @@ services:
     restart: always
     network_mode: host
     user: "1000:1000"
-    ports:
-      - "${SERVER_PORT}:50051"
     logging:
       driver: loki
       options:
