@@ -58,16 +58,6 @@ function restart_services() {
     start_services $replicas
 }
 
-function full_reset() {
-    local replicas=${1:-$DEFAULT_REPLICAS}
-    stop_services
-    if [ -d "$REPO_DIR" ]; then
-        remove_submodule
-    fi
-    init_submodule
-    start_services $replicas
-}
-
 function show_help() {
     echo "Usage: $0 [command] [replicas]"
     echo ""
@@ -76,7 +66,6 @@ function show_help() {
     echo "  start [replicas]    - Start services (default: $DEFAULT_REPLICAS replicas)"
     echo "  stop                - Stop services"
     echo "  restart [replicas]  - Restart services (default: $DEFAULT_REPLICAS replicas)"
-    echo "  reset [replicas]    - Full reset (stop, remove, init, start)"
     echo "  help                - Show help message"
 }
 
@@ -92,9 +81,6 @@ case "$1" in
         ;;
     restart)
         restart_services "$2"
-        ;;
-    reset)
-        full_reset "$2"
         ;;
     help|--help|-h|"")
         show_help
