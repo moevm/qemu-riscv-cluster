@@ -56,6 +56,24 @@ sudo docker plugin install grafana/loki-docker-driver:latest --alias loki --gran
 sudo systemctl restart docker
 ```
 
+## 2.1. Setting up service credentials
+
+Setting up usernames and passwords for the Grafana web interface
+
+1. Open the `log_and_metric/.env` file in a text editor.
+
+2. Set the desired usernames and passwords. For example:
+
+```env
+GF_ADMIN_USER=user
+GF_ADMIN_PASSWORD=your_password
+```
+
+> **Note:**
+> If you do not set these variables, the default credentials will be used
+
+3. Save the file.
+
 ## 3. Project Management
 
 The project management script supports the following commands:
