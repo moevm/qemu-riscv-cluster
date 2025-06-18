@@ -62,22 +62,19 @@ The project management script supports the following commands:
 
 ```bash
 # Update submodules
-./deploy_service.sh update
+sudo ./deploy_service.sh update
 
 # Start services (default: 5 replicas)
-./deploy_service.sh start [number_of_replicas]
+sudo ./deploy_service.sh start [number_of_replicas]
 
 # Stop services
-./deploy_service.sh stop
+sudo ./deploy_service.sh stop
 
 # Restart services
-./deploy_service.sh restart [number_of_replicas]
-
-# Full reset (stop, remove, initialize, start)
-./deploy_service.sh reset [number_of_replicas]
+sudo ./deploy_service.sh restart [number_of_replicas]
 
 # Show help
-./deploy_service.sh help
+sudo ./deploy_service.sh help
 ```
 
 The script will launch:
