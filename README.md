@@ -53,6 +53,7 @@ sudo apt-get install -y \
 ```
 ```bash
 sudo docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+sudo docker plugin enable loki
 sudo systemctl restart docker
 ```
 
