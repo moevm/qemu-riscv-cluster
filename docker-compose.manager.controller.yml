@@ -15,10 +15,8 @@ services:
     volumes:
       - controller_run:/run/controller 
     restart: always
-    network_mode: bridge
+    network_mode: host
     user: "1000:1000"
-    ports:
-      - "${SERVER_PORT}:50051"
     logging:
       driver: loki
       options:
@@ -40,7 +38,7 @@ services:
     environment:
       - METRICS_GATEWAY_ADDRESS=${METRICS_GATEWAY_ADDRESS}
       - METRICS_GATEWAY_PORT=${METRICS_GATEWAY_PORT}
-    network_mode: bridge
+    network_mode: host
     depends_on:
       - controller
     restart: always
