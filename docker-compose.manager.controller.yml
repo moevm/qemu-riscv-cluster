@@ -1,0 +1,58 @@
+version: "3.8"
+
+volumes:
+  controller_run:
+    driver: local
+    driver_opts:
+      type: tmpfs 
+      device: tmpfs
+
+services:
+  controller:
+    build:
+      context: external/grpc_server/controller
+      dockerfile: Dockerfile.controller
+    volumes:
+      - controller_run:/run/controller 
+    restart: always
+    network_mode: host
+    user: "1000:1000"
+    logging:
+      driver: loki
+      options:
+        loki-timeout: 10s
+        no-file: "true"
+        loki-url: ${LOKI_URL_PUSH}
+        loki-pipeline-stages: |
+          - regex:
+              expression: '(level|lvl|severity)=(?P<level>\w+)'
+          - labels:
+              level: level
+  replicated_worker:
+    user: "1000:1000"
+    build:
+      context: external/grpc_server
+      dockerfile: Dockerfile.hash
+    volumes:
+      - controller_run:/run/controller 
+    environment:
+      - METRICS_GATEWAY_ADDRESS=${METRICS_GATEWAY_ADDRESS}
+      - METRICS_GATEWAY_PORT=${METRICS_GATEWAY_PORT}
+    network_mode: host
+    depends_on:
+      - controller
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-3}
+    logging:
+      driver: loki
+      options:
+        loki-timeout: 10s
+        no-file: "true"
+        loki-url:  ${LOKI_URL_PUSH}
+        loki-pipeline-stages: |
+          - regex:
+              expression: '(level|lvl|severity)=(?P<level>\w+)'
+          - labels:
+              level: level

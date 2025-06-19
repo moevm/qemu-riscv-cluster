@@ -1,30 +1,37 @@
 version: '3'
 
 services:
+  pushgateway:
+    image: prom/pushgateway:latest
+    ports:
+      - "9091:9091"
+    restart: unless-stopped
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    restart: unless-stopped
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
       - "9090:9090"
-    networks:
-      - monitoring
+    depends_on:
+      - pushgateway
 
   loki:
     image: grafana/loki:latest
     container_name: loki
+    user: root
+    restart: unless-stopped
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - monitoring
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     volumes:
@@ -37,12 +44,6 @@ services:
     depends_on:
       - loki
       - prometheus
-    networks:
-      - monitoring
 
 volumes:
   grafana-storage:
-
-networks:
-  monitoring:
-    driver: bridge
