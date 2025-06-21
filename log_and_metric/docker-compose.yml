@@ -2,7 +2,7 @@ version: '3'
 
 services:
   pushgateway:
-    image: prom/pushgateway:latest
+    image: prom/pushgateway:v1.11.1
     ports:
       - "9091:9091"
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       - pushgateway
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:main-7deda5b
     container_name: loki
     user: root
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.0.2
     container_name: grafana
     restart: unless-stopped
     ports:
