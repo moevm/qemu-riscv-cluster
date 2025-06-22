@@ -45,15 +45,15 @@ git submodule update
 
 ```bash
 # Install required packages
-sudo apt-get install -y \
+apt-get install -y \
     docker.io \
     docker-compose \
     python3 \
     python3-pip
 ```
 ```bash
-sudo docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
-sudo docker plugin enable loki
+docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+docker plugin enable loki
 sudo systemctl restart docker
 ```
 
@@ -81,19 +81,19 @@ The project management script supports the following commands:
 
 ```bash
 # Update submodules
-sudo ./deploy_service.sh update
+./deploy_service.sh update
 
 # Start services (default: 5 replicas)
-sudo ./deploy_service.sh start [number_of_replicas]
+./deploy_service.sh start [number_of_replicas]
 
 # Stop services
-sudo ./deploy_service.sh stop
+./deploy_service.sh stop
 
 # Restart services
-sudo ./deploy_service.sh restart [number_of_replicas]
+./deploy_service.sh restart [number_of_replicas]
 
 # Show help
-sudo ./deploy_service.sh help
+./deploy_service.sh help
 ```
 
 The script will launch:
