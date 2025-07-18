@@ -31,7 +31,7 @@ services:
   replicated_worker:
     user: "1000:1000"
     build:
-      context: external/grpc_server
+      context: external/grpc_server/worker
       dockerfile: Dockerfile.hash
     volumes:
       - controller_run:/run/controller 
