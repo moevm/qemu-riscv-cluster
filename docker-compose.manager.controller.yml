@@ -32,7 +32,7 @@ services:
     user: "1000:1000"
     build:
       context: external/grpc_server/worker
-      dockerfile: Dockerfile.hash
+      dockerfile: Dockerfile.cc_x86_to_x86
     volumes:
       - controller_run:/run/controller 
     environment:

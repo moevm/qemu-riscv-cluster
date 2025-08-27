@@ -16,7 +16,7 @@ LOG_COMPOSE_FILE="log_and_metric/docker-compose.yml"
 MAIN_COMPOSE_FILE="docker-compose.manager.controller.yml"
 DEFAULT_REPLICAS=5
 
-function update_submodule() {
+function init_submodule() {
     if [ ! -d "$REPO_DIR" ]; then
         echo "Error: Submodule does not exist"
         exit 1
@@ -25,6 +25,14 @@ function update_submodule() {
     echo "Submodule successfully updated"
 }
 
+function update_submodule() {
+    if [ ! -d "$REPO_DIR" ]; then
+        echo "Error: Submodule does not exist"
+        exit 1
+    fi
+    git submodule update --remote
+    echo "Submodule successfully updated"
+}
 function start_services() {
     local replicas=${1:-$DEFAULT_REPLICAS}
     
@@ -62,6 +70,7 @@ function show_help() {
     echo "Usage: $0 [command] [replicas]"
     echo ""
     echo "Commands:"
+    echo "  init                - Initializing a submodule"
     echo "  update              - Update submodule"
     echo "  start [replicas]    - Start services (default: $DEFAULT_REPLICAS replicas)"
     echo "  stop                - Stop services"
@@ -70,6 +79,9 @@ function show_help() {
 }
 
 case "$1" in
+    init)
+        init_submodule
+        ;;
     update)
         update_submodule
         ;;
